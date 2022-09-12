@@ -3,7 +3,7 @@
 Jailhouse non virtualizza risorse che non  esistono ma si limita a suddividere le risorse hardware esistenti in compartimenti isolati chiamati **"celle"**, interamente dedicati a programmi software guest chiamati **"inmate"**. 
 Una di queste celle esegue il sistema operativo Linux ed è nota come **"root-cell"**, le altre celle prendono in prestito CPU e dispositivi dalla cella principale man mano che vengono create.
 
-INSERIRE IMMAGINE hypervisor.png
+![hypervisor](imgs/hypervisor.png)
 
 L'immagine mostra:
 **A)** Architettura di un sistema prima che Jailhouse venga installato
