@@ -119,7 +119,7 @@ In tale percorso sono già presenti sia le celle root sia delle celle di esempio
 Il punto di partenza è lo studio della cella root, ovvero il file, nel caso della Jetson TX2 
 > `[JAILHOUSE_REPO_PATH]/configs/arm64/jetson-tx2.c`
 
-n questo file vieenedefita una *struct* in linguaggio C, composta da un header, da un array delle regioni di memoria, uno dei chip di interrupt e uno dei device PCI.
+n questo file viene definita una *struct* in linguaggio C, composta da un header, da un array delle regioni di memoria, uno dei chip di interrupt e uno dei device PCI.
 In seguito alla definizione della struct essa viene subito istanziata con il nome *config* e vengono assegnati tutti i valori manualmente.
 La parte più importante è probabilmente la definizione dell'array delle regioni di memoria, dove si vanno a definire i *mapping* tra indirizzi di memoria fisici (hardware) e virtuali (inmate cella).
 
@@ -180,12 +180,19 @@ Nella cella root l'accesso alle periferiche hardware si può realizzare come su 
 ## Applicazione Demo
 L'applicazione che abbiamo sviluppato è composta dalla cella bare-metal e da quella root con il sistema operativo Linux.
 Nella cella bare-metal viene eseguito un inmate che configura un pin GPIO in output mode e lo controlla, basandosi sul valore che legge in una cella di memoria condivisa; viene inoltre utilizzato il logging su porta seriale.
+
 Nella cella Linux viene eseguito un programma che periodicamente cambia il valore nella cella di memoria condivisa, andando quindi a controllare indirettamente l'output del pin GPIO.
+
 Utilizzando il linguaggio [Go](https://go.dev/), che permette l'accesso diretto alla memoria tramite i puntatori e al contempo di utilizzare numerose librerie attraverso un package manager, abbiamo sviluppato un semplice server web che espone un API accessibile tramite GET request con la quale comandare il led. Il programma hosta una semplice pagina HTML con un bottone per effettuare la richiesta.
 ## Considerazioni finali e suggerimenti
 Questo approccio è particolarmente utile per la virtualizzazione di attività che richiedono il pieno controllo della CPU; ne sono un esempio le attività di controllo in tempo reale e le operazioni di calcolo a lungo termine (high-performance computing). Oltre a questi, può essere utilizzato per applicazioni di sicurezza, ad esempio per creare sandbox.
+
 Uno dei principale vantaggi è il non utilizzo di uno scheduler di allocazione delle risorse complesso, dato che l'assegnazione di un core CPU separato garantisce che non esegua altre attività.
+
 Questo approccio ha la capacità di fornire un accesso garantito alle risorse e prestazioni prevedibili, rendendo Jailhouse una soluzione adatta per la creazione di attività in tempo reale. 
+
 Da tener in considerazione anche gli svantaggi come la scalabilità limitata, che si basa sul numero di core della CPU, la necessità di un hardware in grado di offrire alte prestazioni e soprattutto la scarsa modularità e documentazione per l'implementazione di nuove applicazioni che necessitano la modifica e la ricompilazione di molteplici file di configurazione del progetto.
+
 Abbiamo notato, seppur utilizzando una scheda come la Nvidia Jetson TX2 dotata di 8gb di ram e di una CPU quad core molto performante, che l'esecuzione di Jailhouse e di alcune semplici applicazioni portano a numerosi bug e glitch nel sistema Linux che spesso risultano in crash del sistema e degli applicativi in esecuzione.
+
 Allo stato attuale dello sviluppo dell'hypervisor, visto lo stato ancora precario sotto il punto di vista della stabilità e la difficoltà nella compilazione delle applicazioni, rimane il dubbio sull'effettiva utilità di Jailhouse, visto che molti casi d'uso possono essere implementati direttamente in linux nativo attraverso opportuni driver hardware e sfruttando le patch real-time del kernel, oppure separando l'applicazione su un sistema con s.o. linux e un microcontrollore che gestisce la parte critica real time, comunicando attraverso i classici protocolli hardware come ad esempio UART/RS232/RS485.
